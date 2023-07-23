@@ -1,0 +1,27 @@
+* {
+    box-sizing: border-box;
+}
+
+.game__wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.board {
+    width: 1000px;
+    height: 1000px;
+    background: blue;
+    border-radius: 12px;
+    position: relative;
+}
+
+.box {
+    background: yellow;
+    height: 50px;
+    width: 150px;
+    border-radius: 12px;
+    border: 2px solid black;
+    position: absolute;
+}
