@@ -17,7 +17,7 @@ class gameView {
       // When current box is overlaying the left part of the box
       (positionX2 > boxLeft && positionX1 < boxLeft) ||
       // When current box is inside the box
-      (positionX2 < boxRight && positionX1 > boxLeft) ||
+      (positionX2 <= boxRight && positionX1 >= boxLeft) ||
       // when current box is covering all the box (is bigger)
       (positionX2 > boxRight && positionX1 < boxLeft) ||
       // When current box is overlaying the right part of the box
@@ -31,21 +31,13 @@ class gameView {
       // When current box is overlaying the top part of the box
       (positionY2 > boxTop && positionY1 < boxTop) ||
       // When current box is inside the box
-      (positionY2 < boxBottom && positionY1 > boxTop) ||
+      (positionY2 <= boxBottom && positionY1 >= boxTop) ||
       // when current box is covering all the box (is bigger)
       (positionY2 > boxBottom && positionY1 < boxTop) ||
       // When current box is overlaying the bottom part of the box
       (positionY2 > boxBottom && positionY1 < boxBottom)
     );
   }
-
-  // #calcAvailableStep(space, step, x1, x2, y1, y2) {
-  //   // If there is no space left because of the high step, step will be equal to the space left
-  //   this.checkOverlay(x1, x2, y1, y2)
-  //   return Math.trunc(space / step) || !this.checkOverlay(x1, x2, y1, y2)
-  //       ? step
-  //       : space % step;
-  // }
 
   checkOverlay(x1, x2, y1, y2, direction) {
     const boxes = this.board.childNodes;
@@ -56,7 +48,6 @@ class gameView {
       if (box === this.selectedBox) continue;
       // Getting box coordinates
       boxCoords = this.#getCoords(box);
-
       // This will not check vertical Overlay if there is no horizontal overlay
       if (
         !this.#checkHorizontalOverlay(boxCoords.left, boxCoords.right, x1, x2)
@@ -135,11 +126,11 @@ class gameView {
       const box1 = this.#getCoords(box);
       if (!this.#checkOnTheEdge(box1)) alignedOnEdges = false;
 
-      for (const box of boxes) {
+      for (const boxCompared of boxes) {
         // Not compare to itself
-        if (box === box1) continue;
+        if (box === boxCompared) continue;
         // Getting second box coordinates
-        const box2 = this.#getCoords(box);
+        const box2 = this.#getCoords(boxCompared);
 
         if (
           !this.#checkVerticalOverlay(
