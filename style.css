@@ -27,6 +27,10 @@
     cursor: pointer;
 }
 
+.special {
+    filter: grayscale(100%);
+}
+
 .fade:hover {
     opacity: 0.8;
 }

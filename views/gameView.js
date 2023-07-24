@@ -4,6 +4,11 @@ class gameView {
   board;
   selectedBox;
 
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+
   #checkHorizontalOverlay(boxLeft, boxRight, positionX1, positionX2) {
     // Checking horizontal overlay
     return (
@@ -33,25 +38,102 @@ class gameView {
   }
 
   checkOverlay(x1, x2, y1, y2) {
-    const boardCoords = this.board.getBoundingClientRect();
     const boxes = this.board.childNodes;
 
     // Using for of loop because I want to break from the loop when boxes overlap
     for (const box of boxes) {
       if (box === this.selectedBox) continue;
       // Getting box coordinates
-      const boxCoords = box.getBoundingClientRect();
-      const boxLeft = boxCoords.left + window.scrollX - boardCoords.left;
-      const boxRight = boxLeft + boxCoords.width;
-      const boxTop = boxCoords.top - boardCoords.top;
-      const boxBottom = boxTop + boxCoords.height;
+      const boxCoords = this.#getCoords(box);
 
       // This will not check vertical Overlay if there is no horizontal overlay
-      if (!this.#checkHorizontalOverlay(boxLeft, boxRight, x1, x2)) continue;
-      if (this.#checkVerticalOverlay(boxTop, boxBottom, y1, y2)) return true;
+      if (
+        !this.#checkHorizontalOverlay(boxCoords.left, boxCoords.right, x1, x2)
+      )
+        continue;
+      if (this.#checkVerticalOverlay(boxCoords.top, boxCoords.bottom, y1, y2))
+        return true;
     }
 
     return false;
+  }
+
+  #checkOnTheEdge(box) {
+    return (
+      box.left === 0 ||
+      box.right === this.width ||
+      box.top === 0 ||
+      box.bottom === this.height
+    );
+  }
+
+  #getCoords(box) {
+    const boardCoords = this.board.getBoundingClientRect();
+    // Getting box coordinates
+    const boxCoords = box.getBoundingClientRect();
+    const left = boxCoords.left + window.scrollX - boardCoords.left;
+    const right = left + boxCoords.width;
+    const top = boxCoords.top - boardCoords.top;
+    const bottom = top + boxCoords.height;
+    return { left, right, top, bottom };
+  }
+
+  #setSpecialOrder() {
+    const boxes = this.board.childNodes;
+    boxes.forEach((box) => box.classList.add("special"));
+  }
+
+  #removeSpecialOrder() {
+    const boxes = this.board.childNodes;
+    boxes.forEach((box) => box.classList.remove("special"));
+  }
+
+  checkSpecialOrder() {
+    // Checking if every box are lined up vertically
+    const boxes = this.board.childNodes;
+    if (boxes.length <= 1) return;
+    let alignedVertically = true;
+    let alignedHorizontally = true;
+    let alignedOnEdges = true;
+    let specialOrder = true;
+
+    for (const box of boxes) {
+      // Getting first box coordinates
+      const box1 = this.#getCoords(box);
+      if (!this.#checkOnTheEdge(box1)) alignedOnEdges = false;
+
+      for (const box of boxes) {
+        // Not compare to itself
+        if (box === box1) continue;
+        // Getting second box coordinates
+        const box2 = this.#getCoords(box);
+
+        if (
+          !this.#checkVerticalOverlay(
+            box1.top,
+            box1.bottom,
+            box2.top,
+            box2.bottom
+          )
+        )
+          alignedVertically = false;
+        if (
+          !this.#checkHorizontalOverlay(
+            box1.left,
+            box1.right,
+            box2.left,
+            box2.right
+          )
+        )
+          alignedHorizontally = false;
+        if (!alignedVertically && !alignedHorizontally && !alignedOnEdges) {
+          specialOrder = false;
+          break;
+        }
+      }
+    }
+    if (specialOrder) this.#setSpecialOrder();
+    else this.#removeSpecialOrder();
   }
 }
 

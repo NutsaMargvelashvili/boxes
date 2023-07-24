@@ -45,6 +45,7 @@ class Box extends gameView {
         )
       ) {
         this.generateMarkup();
+        this.checkSpecialOrder();
         // Increase box counter
         this.#boxCount.innerText = +this.#boxCount.innerText + 1;
         // Overlay condition is met!
