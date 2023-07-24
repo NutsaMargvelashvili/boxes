@@ -9,7 +9,6 @@ class BoardView extends gameView {
   addBtn = document.querySelector(".add");
   addClear = document.querySelector(".clear");
   boxCount = document.querySelector(".box__count");
-  step = +document.querySelector(".box__speed").value;
 
   constructor(height = 1000, width = 1000) {
     super(height, width);
@@ -43,12 +42,6 @@ class BoardView extends gameView {
     this.boxCount.innerText = 0;
   }
 
-  #calcAvailableStep(space, step) {
-    // If there is no space left because of the high step, step will be equal to the space left
-
-    return Math.trunc(space / step) ? step : space % step;
-  }
-
   #move(e) {
     const borders = this.board.getBoundingClientRect();
     const boxLeft = parseInt(this.selectedBox.style.left);
@@ -57,54 +50,86 @@ class BoardView extends gameView {
     const boxBottom = boxTop + parseInt(this.selectedBox.style.height);
 
     if (e.key === "ArrowLeft") {
-      const step = this.#calcAvailableStep(boxLeft, this.step);
+      this.availableStep = this.step;
+      this.availableStep = this.calcAvailableStep(boxLeft, this.step);
+
       if (
         // Simplified
         // parseInt(this.selectedBox.style.left) + borders.left - this.step >= borders.left
-        boxLeft >= step &&
-        !this.checkOverlay(boxLeft - step, boxRight - step, boxTop, boxBottom)
+        boxLeft >= this.availableStep &&
+        !this.checkOverlay(
+          boxLeft - this.availableStep,
+          boxRight - this.availableStep,
+          boxTop,
+          boxBottom,
+          e.key
+        )
       ) {
         this.selectedBox.style.left = `${
-          parseInt(this.selectedBox.style.left) - step
+          parseInt(this.selectedBox.style.left) - this.availableStep
         }px`;
         this.checkSpecialOrder();
       }
     }
     if (e.key === "ArrowRight") {
-      const step = this.#calcAvailableStep(this.width - boxRight, this.step);
+      this.availableStep = this.calcAvailableStep(
+        this.width - boxRight,
+        this.step
+      );
       if (
         // Simplified
         // boxRight + borders.left + this.step <= borders.right
-        boxRight + step <= borders.width &&
-        !this.checkOverlay(boxLeft + step, boxRight + step, boxTop, boxBottom)
+        boxRight + this.availableStep <= borders.width &&
+        !this.checkOverlay(
+          boxLeft + this.availableStep,
+          boxRight + this.availableStep,
+          boxTop,
+          boxBottom,
+          e.key
+        )
       ) {
         this.selectedBox.style.left = `${
-          parseInt(this.selectedBox.style.left) + step
+          parseInt(this.selectedBox.style.left) + this.availableStep
         }px`;
         this.checkSpecialOrder();
       }
     }
     if (e.key === "ArrowDown") {
-      const step = this.#calcAvailableStep(this.height - boxBottom, this.step);
+      this.availableStep = this.calcAvailableStep(
+        this.height - boxBottom,
+        this.step
+      );
       if (
-        boxBottom + step <= borders.height &&
-        !this.checkOverlay(boxLeft, boxRight, boxTop + step, boxBottom + step)
+        boxBottom + this.availableStep <= borders.height &&
+        !this.checkOverlay(
+          boxLeft,
+          boxRight,
+          boxTop + this.availableStep,
+          boxBottom + this.availableStep,
+          e.key
+        )
       ) {
         this.selectedBox.style.top = `${
-          parseInt(this.selectedBox.style.top) + step
+          parseInt(this.selectedBox.style.top) + this.availableStep
         }px`;
         this.checkSpecialOrder();
       }
     }
     if (e.key === "ArrowUp") {
-      const step = this.#calcAvailableStep(boxTop, this.step);
+      this.availableStep = this.calcAvailableStep(boxTop, this.step);
 
       if (
-        boxTop >= step &&
-        !this.checkOverlay(boxLeft, boxRight, boxTop - step, boxBottom - step)
+        boxTop >= this.availableStep &&
+        !this.checkOverlay(
+          boxLeft,
+          boxRight,
+          boxTop - this.availableStep,
+          boxBottom - this.availableStep,
+          e.key
+        )
       ) {
         this.selectedBox.style.top = `${
-          parseInt(this.selectedBox.style.top) - step
+          parseInt(this.selectedBox.style.top) - this.availableStep
         }px`;
         this.checkSpecialOrder();
       }
